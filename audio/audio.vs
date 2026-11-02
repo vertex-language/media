@@ -37,7 +37,7 @@ public struct Buffer {
     public var Seconds: float64 { return float64(Frames) / float64(Rate) }
 
     /// Channel is one channel's samples.
-    public func Channel(_ c: int) -> [float32] {
+    public func Channel(c: int) -> [float32] {
         precondition(c >= 0 && c < Channels, "audio: no channel \(c) in \(Channels)")
         if Channels == 1 {
             return Samples
@@ -68,7 +68,7 @@ public struct Buffer {
 
     /// WithChannels is the buffer as so many channels: mono spread to
     /// each, or anything averaged to mono first.
-    public func WithChannels(_ n: int) -> Buffer {
+    public func WithChannels(n: int) -> Buffer {
         if n == Channels {
             return self
         }
@@ -87,7 +87,7 @@ public struct Buffer {
 
     /// Appending is this buffer followed by another of the same rate and
     /// channel count.
-    public func Appending(_ b: Buffer) -> Buffer {
+    public func Appending(b: Buffer) -> Buffer {
         precondition(b.Rate == Rate && b.Channels == Channels, "audio: appending \(b.Rate) Hz × \(b.Channels) to \(Rate) Hz × \(Channels)")
         var s = Samples
         s.append(contentsOf: b.Samples)
@@ -117,7 +117,7 @@ public struct Buffer {
 
 /// PCM16 is the samples as 16-bit integers as libsndfile makes them:
 /// x·2^31 rounded to 32 bits, clamped, and its top 16 bits kept.
-public func PCM16(_ b: Buffer) -> [int16] {
+public func PCM16(b: Buffer) -> [int16] {
     var out = [int16](repeating: 0, count: b.Samples.count)
     for i in 0..<b.Samples.count {
         let x = b.Samples[i]
@@ -130,7 +130,7 @@ public func PCM16(_ b: Buffer) -> [int16] {
 
 /// FromPCM16 is 16-bit integer samples as a buffer, divided by 32768 as
 /// libsndfile reads them.
-public func FromPCM16(_ s: [int16], rate: int, channels: int = 1) -> Buffer {
+public func FromPCM16(s: [int16], rate: int, channels: int = 1) -> Buffer {
     var out = [float32](repeating: 0, count: s.count)
     for i in 0..<s.count {
         out[i] = float32(s[i]) / 32768
@@ -144,7 +144,7 @@ public func FromPCM16(_ s: [int16], rate: int, channels: int = 1) -> Buffer {
 /// with a Hann-windowed sinc, `taps` zero crossings each side, cut off
 /// below the lower rate's Nyquist frequency so that downsampling does
 /// not alias.
-public func Resample(_ b: Buffer, to rate: int, taps: int = 16) -> Buffer {
+public func Resample(b: Buffer, to rate: int, taps: int = 16) -> Buffer {
     precondition(rate > 0, "audio: resampling to \(rate) Hz")
     if rate == b.Rate || b.Frames == 0 {
         return Buffer(samples: b.Samples, rate: rate, channels: b.Channels)

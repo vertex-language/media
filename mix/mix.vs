@@ -36,7 +36,7 @@ public final class Voice {
     var left: float32 = 0
     var right: float32 = 0
 
-    public init(_ fill: (inout [float32], int) -> bool) {
+    public init(fill: (inout [float32], int) -> bool) {
         self.fill = fill
     }
 }
@@ -55,7 +55,7 @@ public final class Mixer {
 
     /// Add puts a voice in the mix and answers it.
     @discardableResult
-    public func Add(_ v: Voice) -> Voice {
+    public func Add(v: Voice) -> Voice {
         Voices.append(v)
         return v
     }
@@ -158,12 +158,12 @@ public struct Biquad {
 
     public init() {}
 
-    public init(_ kind: FilterKind, frequency: float32, q: float32 = 0.707, gain: float32 = 0, rate: int) {
+    public init(kind: FilterKind, frequency: float32, q: float32 = 0.707, gain: float32 = 0, rate: int) {
         Set(kind, frequency: frequency, q: q, gain: gain, rate: rate)
     }
 
     /// Set changes what it does, keeping its state (a sweeping filter).
-    public mutating func Set(_ kind: FilterKind, frequency: float32, q: float32 = 0.707, gain: float32 = 0, rate: int) {
+    public mutating func Set(kind: FilterKind, frequency: float32, q: float32 = 0.707, gain: float32 = 0, rate: int) {
         let f = math.Clamp(frequency, 10, float32(rate) * 0.45)
         let w = 2 * float32(math.Pi) * f / float32(rate)
         let cw = math.Cos(w), sw = math.Sin(w)
@@ -188,7 +188,7 @@ public struct Biquad {
     }
 
     /// Run filters one sample.
-    public mutating func Run(_ x: float32) -> float32 {
+    public mutating func Run(x: float32) -> float32 {
         let y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
         x2 = x1; x1 = x
         y2 = y1; y1 = y
@@ -198,7 +198,7 @@ public struct Biquad {
 
 /// Tone is a sine at a frequency for a time, with a quick rise and a
 /// fall (beeps, chimes); `harmonic` adds its octave for a brighter tone.
-public func Tone(_ frequency: float32, seconds: float32, rate: int, gain: float32 = 0.5, harmonic: float32 = 0.25) -> Voice {
+public func Tone(frequency: float32, seconds: float32, rate: int, gain: float32 = 0.5, harmonic: float32 = 0.25) -> Voice {
     var phase: float32 = 0
     var t = 0
     let total = int(seconds * float32(rate))
@@ -233,7 +233,7 @@ public final class Player {
     let samples: [float32]
     let step: float64
 
-    public init(_ b: audio.Buffer, mixRate: int) {
+    public init(b: audio.Buffer, mixRate: int) {
         Buffer = b
         samples = b.Channels == 1 ? b.Samples : b.Mono().Samples
         step = float64(b.Rate) / float64(mixRate)
@@ -244,7 +244,7 @@ public final class Player {
         return mix.Voice { buf, n in self.fill(&buf, n) }
     }
 
-    func fill(_ buf: inout [float32], _ n: int) -> bool {
+    func fill(buf: inout [float32], n: int) -> bool {
         let count = samples.count
         if count < 2 { return false }
         for i in 0..<n {

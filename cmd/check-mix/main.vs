@@ -16,12 +16,12 @@ import (
 
 var failures = 0
 
-func check(_ ok: bool, _ what: string) {
+func check(ok: bool, what: string) {
     print(ok ? "ok    \(what)" : "FAIL  \(what)")
     if !ok { failures += 1 }
 }
 
-func crossings(_ s: [float32], every: int = 1, from: int = 0) -> int {
+func crossings(s: [float32], every: int = 1, from: int = 0) -> int {
     var n = 0
     var i = from + every
     while i < s.count {
@@ -31,7 +31,7 @@ func crossings(_ s: [float32], every: int = 1, from: int = 0) -> int {
     return n
 }
 
-func rms(_ s: [float32]) -> float32 {
+func rms(s: [float32]) -> float32 {
     var a: float32 = 0
     for x in s { a += x * x }
     return math.Sqrt(a / float32(max(1, s.count)))
@@ -63,7 +63,7 @@ func main() -> int32 {
     check(top <= 1 && loud.Peak > 1, "the limiter holds \(loud.Peak) to \(top)")
 
     // A lowpass at 500 Hz: 100 Hz through, 5 kHz down by far.
-    func through(_ f: float32) -> float32 {
+    func through(f: float32) -> float32 {
         var lp = mix.Biquad(.lowpass, frequency: 500, rate: rate)
         var s: [float32] = []
         for i in 0..<4800 { s.append(lp.Run(math.Sin(2 * float32(math.Pi) * f * float32(i) / float32(rate)))) }

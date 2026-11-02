@@ -61,7 +61,7 @@ let formatExtensible: int = 0xFFFE
 /// Encode is the buffer as a WAV file's bytes. More than two channels,
 /// or samples wider than 16 bits, are written WAVE_FORMAT_EXTENSIBLE, as
 /// the format's rules ask; float adds the `fact` chunk they ask for too.
-public func Encode(_ b: audio.Buffer, format: Format = .pcm16) -> [uint8] {
+public func Encode(b: audio.Buffer, format: Format = .pcm16) -> [uint8] {
     let bytesPer = format.Bits / 8
     let dataSize = b.Samples.count * bytesPer
     let extensible = b.Channels > 2 || (format.Bits > 16 && !format.IsFloat)
@@ -132,7 +132,7 @@ public func Encode(_ b: audio.Buffer, format: Format = .pcm16) -> [uint8] {
 let subformatTail: [uint8] = [0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71]
 
 // channelMask is the speaker positions libsndfile gives n channels.
-func channelMask(_ n: int) -> int {
+func channelMask(n: int) -> int {
     switch n {
     case 1: return 0x4        // front center
     case 2: return 0x3        // front left, right
@@ -147,11 +147,11 @@ func channelMask(_ n: int) -> int {
 // libsndfile makes it: rint(x·2^31), clamped to 32 bits, shifted down
 // arithmetically, so narrower formats floor what the 32-bit one rounds.
 // A float32 times a power of two is exact in float64.
-func quantize(_ x: float32, bits: int) -> int {
+func quantize(x: float32, bits: int) -> int {
     return pcm32(x) >> (32 - bits)
 }
 
-func pcm32(_ x: float32) -> int {
+func pcm32(x: float32) -> int {
     if x != x {
         return 0
     }
@@ -168,16 +168,16 @@ func pcm32(_ x: float32) -> int {
 struct writer {
     var bytes: [uint8] = []
 
-    mutating func tag(_ s: string) {
+    mutating func tag(s: string) {
         bytes.append(contentsOf: Array(s.utf8))
     }
 
-    mutating func u16(_ v: int) {
+    mutating func u16(v: int) {
         bytes.append(uint8(truncatingIfNeeded: v))
         bytes.append(uint8(truncatingIfNeeded: v >> 8))
     }
 
-    mutating func u32(_ v: int) {
+    mutating func u32(v: int) {
         bytes.append(uint8(truncatingIfNeeded: v))
         bytes.append(uint8(truncatingIfNeeded: v >> 8))
         bytes.append(uint8(truncatingIfNeeded: v >> 16))
@@ -197,7 +197,7 @@ public struct Info {
 
 /// Decode reads a WAV file's bytes into a buffer, along with how the
 /// file stored them.
-public func Decode(_ bytes: [uint8]) throws -> (audio.Buffer, Info) {
+public func Decode(bytes: [uint8]) throws -> (audio.Buffer, Info) {
     var r = reader(bytes: bytes)
     guard bytes.count >= 12, r.tag(0) == "RIFF", r.tag(8) == "WAVE" else {
         throw FormatError.malformed("not a RIFF/WAVE file")
@@ -309,15 +309,15 @@ public func Decode(_ bytes: [uint8]) throws -> (audio.Buffer, Info) {
 struct reader {
     let bytes: [uint8]
 
-    func tag(_ at: int) -> string {
+    func tag(at: int) -> string {
         return string(decoding: bytes[at..<(at + 4)], as: UTF8.self)
     }
 
-    func u16(_ at: int) -> int {
+    func u16(at: int) -> int {
         return int(bytes[at]) | int(bytes[at + 1]) << 8
     }
 
-    func u32(_ at: int) -> int {
+    func u32(at: int) -> int {
         return int(bytes[at]) | int(bytes[at + 1]) << 8 | int(bytes[at + 2]) << 16 | int(bytes[at + 3]) << 24
     }
 }

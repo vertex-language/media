@@ -18,12 +18,12 @@ import (
 
 var failures = 0
 
-func check(_ ok: bool, _ what: string) {
+func check(ok: bool, what: string) {
     print(ok ? "ok    \(what)" : "FAIL  \(what)")
     if !ok { failures += 1 }
 }
 
-func f32(_ path: string) throws -> [float32] {
+func f32(path: string) throws -> [float32] {
     let b = try fs.ReadFile(fs.Path(path))
     var out = [float32](repeating: 0, count: b.count / 4)
     for i in 0..<out.count {
@@ -34,7 +34,7 @@ func f32(_ path: string) throws -> [float32] {
 }
 
 // firstDiff is where two sample arrays first differ, or -1.
-func firstDiff(_ a: [float32], _ b: [float32]) -> int {
+func firstDiff(a: [float32], b: [float32]) -> int {
     if a.count != b.count {
         return min(a.count, b.count)
     }
@@ -90,7 +90,7 @@ do {
 }
 
 // The resampler.
-func tone(_ hz: float32, rate: int, seconds: float32) -> audio.Buffer {
+func tone(hz: float32, rate: int, seconds: float32) -> audio.Buffer {
     let n = int(float32(rate) * seconds)
     var s = [float32](repeating: 0, count: n)
     for i in 0..<n {
@@ -100,7 +100,7 @@ func tone(_ hz: float32, rate: int, seconds: float32) -> audio.Buffer {
 }
 
 // rms over the middle half, away from the edges.
-func rms(_ b: audio.Buffer) -> float32 {
+func rms(b: audio.Buffer) -> float32 {
     var sum: float32 = 0
     let lo = b.Frames / 4
     let hi = 3 * b.Frames / 4

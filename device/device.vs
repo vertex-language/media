@@ -35,7 +35,7 @@ public final class Output {
     public let Capacity: int
     var closed = false
 
-    init(_ handle: int32, rate: int, channels: int, capacity: int) {
+    init(handle: int32, rate: int, channels: int, capacity: int) {
         self.handle = handle
         Rate = rate
         Channels = channels
@@ -56,7 +56,7 @@ public final class Output {
     /// Write queues interleaved frames (Channels samples each) and answers
     /// how many frames it took: fewer when the queue is nearly full.
     @discardableResult
-    public func Write(_ samples: [float32]) -> int {
+    public func Write(samples: [float32]) -> int {
         if closed || samples.isEmpty { return 0 }
         let frames = samples.count / Channels
         let n = samples.withUnsafeBufferPointer { p in outputWrite(handle, p.baseAddress, int32(frames)) }
@@ -66,7 +66,7 @@ public final class Output {
     /// Write queues a buffer's frames (it must have this stream's rate and
     /// channels).
     @discardableResult
-    public func Write(_ b: audio.Buffer) -> int {
+    public func Write(b: audio.Buffer) -> int {
         return Write(b.Samples)
     }
 
